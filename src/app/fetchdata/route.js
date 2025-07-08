@@ -156,7 +156,9 @@ async function GetKillerPerks() {
   return perks;
 }
 
-export async function GET() {
+export async function GET(req, res) {
+  if (req.headers.get('Authorization') !== `Bearer ${process.env.CRON_SECRET}`) return res.status(401).json({ message: 'Unauthorized' });
+  
   const data = {
     addons: [],
     perks: []

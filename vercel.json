@@ -1,0 +1,6 @@
+{
+  "crons": [{
+    "path": "/fetchdata",
+    "schedule": "12 18 * * *"
+  }]
+}
