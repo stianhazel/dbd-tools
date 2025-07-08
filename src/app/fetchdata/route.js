@@ -53,19 +53,19 @@ async function CreatePublicFolders() {
   try {
     await access('public/images/killers', constants.R_OK);
   } catch (err) {
-    await mkdir(err.path);
+    await mkdir(err.path, { recursive: true });
   }
 
   try {
     await access('public/images/addons', constants.R_OK);
   } catch (err) {
-    await mkdir(err.path);
+    await mkdir(err.path, { recursive: true });
   }
 
   try {
     await access('public/images/perks', constants.R_OK);
   } catch (err) {
-    await mkdir(err.path);
+    await mkdir(err.path, { recursive: true });
   }
 }
 
