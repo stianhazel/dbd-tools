@@ -4,6 +4,7 @@ import { parse } from 'node-html-parser';
 import { finished } from 'node:stream/promises';
 import { Readable } from 'node:stream';
 import { fetch, Agent } from 'undici'
+import constants from 'node:constants';
 
 const KILLERS = [
   'Trapper',
@@ -47,6 +48,26 @@ const KILLERS = [
   'Ghoul',
   'Animatronic'
 ];
+
+async function CreatePublicFolders() {
+  try {
+    await access('public/images/killers', constants.R_OK);
+  } catch (err) {
+    await mkdir(err.path);
+  }
+
+  try {
+    await access('public/images/addons', constants.R_OK);
+  } catch (err) {
+    await mkdir(err.path);
+  }
+
+  try {
+    await access('public/images/perks', constants.R_OK);
+  } catch (err) {
+    await mkdir(err.path);
+  }
+}
 
 async function DownloadImage(url, path) {
   try {
@@ -152,32 +173,23 @@ async function GetKillerPerks() {
 }
 
 export async function GET(req, res) {
-  if (req.headers.get('Authorization') !== `Bearer ${process.env.CRON_SECRET}`) return new Response(null, { status: 401 }).json({ message: 'Unauthorized' });
+  if (req.headers.get('Authorization') !== `Bearer ${process.env.CRON_SECRET}`) return new Response(JSON.stringify({ message: 'Unauthorized' }), { status: 400 });
   
   const data = {
     addons: [],
     perks: []
   }
+
+  await CreatePublicFolders()
   
   try {
-    // make sure folders exist
-    if (!await access('public/images/addons')) {
-      await mkdir('public/images/addons');
-    }
-    if (!await access('public/images/killers')) {
-      await mkdir('public/images/killers');
-    }
-    if (!await access('public/images/perks')) {
-      await mkdir('public/images/perks');
-    }
-
     // for each killer
     for (const k of KILLERS) data.addons.push(await GetAddonsForKiller(k));
     // addons as well
     data.perks = await GetKillerPerks()
     await writeFile('public/data.json', JSON.stringify(data));
   } catch (err) {
-    return Response(null, { status: 400 }).json({ error: err.message, trace: err.stack });
+    return new Response(JSON.stringify({ error: err.message, trace: err.stack }), { status: 400 });
   }
 
   return new Response(JSON.stringify(data));
