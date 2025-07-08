@@ -1,4 +1,4 @@
-import { writeFile } from 'node:fs/promises';
+import { writeFile, mkdir, access } from 'node:fs/promises';
 import { createWriteStream } from 'node:fs';
 import { parse } from 'node-html-parser';
 import { finished } from 'node:stream/promises';
@@ -132,6 +132,7 @@ async function GetKillerPerks() {
     const splitImageUrl = imageUrl.split('/');
     let splitImageUrlEnd = splitImageUrl[splitImageUrl.length-1];
     
+    // edge case for Coup, since the French character causes URL issues
     if (splitImageUrlEnd.includes('coup')) {
       splitImageUrlEnd = 'coupdegrace.png';
     }
@@ -139,13 +140,7 @@ async function GetKillerPerks() {
     const relativeUrl = '/images/perks/' + splitImageUrlEnd;
     const publicUrl = 'public/images/perks/' + splitImageUrlEnd;
 
-    try {
-      const stream = createWriteStream(publicUrl);
-      const image = await fetch('https://deadbydaylight.wiki.gg' + imageUrl);
-      await finished(Readable.fromWeb(image.body).pipe(stream));
-    } catch (err) {
-      throw err;
-    }
+    await DownloadImage(imageUrl, publicUrl);
 
     return {
       name: pe.attributes.alt,
@@ -165,14 +160,24 @@ export async function GET(req, res) {
   }
   
   try {
+    // make sure folders exist
+    if (!await access('public/images/addons')) {
+      await mkdir('public/images/addons');
+    }
+    if (!await access('public/images/killers')) {
+      await mkdir('public/images/killers');
+    }
+    if (!await access('public/images/perks')) {
+      await mkdir('public/images/perks');
+    }
+
     // for each killer
     for (const k of KILLERS) data.addons.push(await GetAddonsForKiller(k));
     // addons as well
     data.perks = await GetKillerPerks()
     await writeFile('public/data.json', JSON.stringify(data));
   } catch (err) {
-    console.log(err);
-    return Response.json({ error: err.message, trace: err.stack });
+    return Response(null, { status: 400 }).json({ error: err.message, trace: err.stack });
   }
 
   return new Response(JSON.stringify(data));
