@@ -23,22 +23,24 @@ export default function StreakTile({killerData, incrementStreak, resetStreak}) {
 	return (
 		<div className="bg-gray-800 flex flex-col relative">
 			<div className="inline-flex p-3 items-center">
-				<div className={`relative h-64 w-48 ${!rolled ? 'invisible' : ''}`}>
-					<Image className="object-contain sm:object-cover" fill={true} src={killer} alt="Killer" />
+				<div className={`relative ${!rolled ? 'invisible' : ''}`}>
+					<Image placeholder='empty' height="256" width="256" src={killer} alt="Killer" />
 				</div>
 
-				<div className={`flex flex-col mx-4 ${!rolled ? 'invisible' : ''}`}>
+				<div className={`flex flex-col mr-8 ${!rolled ? 'invisible' : ''}`}>
 					<div className="relative">
-						<Image src={`/images/${addons[0].type}.png`} alt={`${addons[0].type} Addon`} width="100" height="100" />
-						<Image className="absolute top-1/2 left-1/2 -translate-1/2" src={addons[0].icon} alt="Addon" width="90" height="90" />
+						<Image placeholder='empty' src={`/images/${addons[0].type}.png`} alt={`${addons[0].type} Addon`} width="100" height="100" />
+						<Image placeholder='empty' className="absolute top-1/2 left-1/2 -translate-1/2" src={addons[0].icon} alt="Addon" width="90" height="90" />
 					</div>
 					<div className="relative">
-						<Image src={`/images/${addons[1].type}.png`} alt={`${addons[1].type} Addon`} width="100" height="100" />
-						<Image className="absolute top-1/2 left-1/2 -translate-1/2" src={addons[1].icon} alt="Addon" width="90" height="90" />
+						<Image placeholder='empty' src={`/images/${addons[1].type}.png`} alt={`${addons[1].type} Addon`} width="100" height="100" />
+						<Image placeholder='empty' className="absolute top-1/2 left-1/2 -translate-1/2" src={addons[1].icon} alt="Addon" width="90" height="90" />
 					</div>
 				</div>
 
-				<Perks perks={perks} scale="big" className={`${!rolled ? 'invisible' : ''}`}/>
+				<div className={`${!rolled ? 'invisible' : ''}`}>
+					<Perks perks={perks} size="96" />
+				</div>
 			</div>
 
 			<div className={`grid grid-cols-2 z-1 ${!rolled ? 'invisible' : ''}`}>
